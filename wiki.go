@@ -9,6 +9,7 @@ import (
 	"regexp"
 )
 
+//Page A wiki page
 type Page struct {
 	Title string
 	Body  []byte
