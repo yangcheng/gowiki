@@ -8,40 +8,28 @@ import (
 
 func TestPageNameValidatd(t *testing.T) {
 
-	req, err := http.NewRequest("GET", "/edit/normal123", nil)
-
-	if err != nil {
-		t.Fatal(err)
+	names := []string{"/edit/normal123", "/edit/normal123&*"}
+	statuses := []int{http.StatusOK, http.StatusNotFound}
+	if len(names) != len(statuses) {
+		t.Fatal("number of test names is different then name of status")
+		return
 	}
 
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(makeHandler(editHandler))
+	for i, name := range names {
+		req, err := http.NewRequest("GET", name, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	handler.ServeHTTP(rr, req)
+		rr := httptest.NewRecorder()
+		handler := http.HandlerFunc(makeHandler(editHandler))
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
-	}
+		handler.ServeHTTP(rr, req)
 
-}
-
-func TestPageNameInvalid(t *testing.T) {
-
-	req, err := http.NewRequest("GET", "/edit/normal123&*", nil)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(makeHandler(editHandler))
-
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusNotFound {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusNotFound)
+		if status := rr.Code; status != statuses[i] {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, statuses[i])
+		}
 	}
 
 }
